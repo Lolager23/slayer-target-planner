@@ -1,15 +1,15 @@
-# Slayer Target Planner 4.1.1
+# Slayer Target Planner 4.1.2 — local updater test baseline
 
 An offline-capable creature hunt planner for the private website, local browser and portable Windows app.
 
 ## Start
 
-Unreleased source correction: [restart/update handoff on Windows](docs/features/updater-restart-handoff.md).
+This local test build contains the [restart/update handoff correction on Windows](docs/features/updater-restart-handoff.md). It is the baseline for testing the next published version through the app's updater.
 
 Version 4.1.1 adds conservative imported-account defaults, background
 DPS during setup, provisional hunt tables and a clickable current-hunt creature
 selector. [Behaviour and focused verification](docs/features/import-progressive-planning.md).
-The existing Desktop copy remains 4.1.0 at the user's request.
+The existing Desktop copy is being replaced with this corrected-updater baseline at the user's request.
 
 Version 4.1.0 reviews all 375 canonical guide locations, adds revisioned entrance
 and transport notes, corrects Stalker Den, Tonali Cavern and Shaman Caves, and

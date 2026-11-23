@@ -1,5 +1,13 @@
 # Verification
 
+## Local 4.1.2 updater test baseline — 23 November 2026
+
+The user requested a manual local upgrade with the corrected updater, followed by
+a newer published build with an extra theme for their own update test. Version
+4.1.2 is the local baseline; 4.1.3 is the intended GitHub target. The 27 focused
+checks below cover the corrected helper. Packaging and installation are recorded
+after verification; no live update result is inferred from preparation.
+
 ## Unreleased restart/update handoff fix — 23 November 2026
 
 - Local read-only diagnostics found a staged verified 4.1.1 ZIP and install job,
