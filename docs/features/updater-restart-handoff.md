@@ -1,4 +1,4 @@
-# Restart/update helper handoff — unreleased
+# Restart/update helper handoff — 4.1.3
 
 The reported 4.1.0 to 4.1.1 attempts had a verified staged ZIP and `job.json`, but
 no installer `result.json` or new-app startup confirmation. The Desktop app was
@@ -32,8 +32,9 @@ installer failure now displays its recorded reason in Settings.
 
 The launcher is part of the installed application: 4.1.0 and 4.1.1 cannot acquire
 this correction merely by retrying their broken handoff. One manual upgrade to a
-release containing the correction is needed. This change is not yet released;
-the user's Desktop copy and staged 4.1.1 download remain untouched.
+release containing the correction is needed. The user requested local 4.1.2 with
+this correction, followed by published 4.1.3 with an extra theme for their own
+updater test. That live test is not inferred from the automated checks below.
 
 ## Focused evidence
 
@@ -50,5 +51,7 @@ bounded-clock test proves that process spawn alone cannot satisfy readiness.
 The original detached launch reproduction returned no result with either piped
 or ignored standard streams. Non-detached direct execution ran the helper; the
 independent hidden process is required to pass the additional parent-exit case.
-No running user app was closed or launched during this investigation. The full
-suite and a new Windows release package are deferred until a release is requested.
+No running user app was closed or launched during the original investigation.
+The subsequent release and local replacement are recorded in the root verification
+record. The 4.1.3 release adds Desert parchment, a light cream/copper theme with
+green status accents. Theme selection uses the existing device-local preference.

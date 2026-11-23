@@ -4,6 +4,7 @@ export const THEMES = [
   ['ember', 'Ember'],
   ['amethyst', 'Amethyst'],
   ['daylight', 'Daylight'],
+  ['desert', 'Desert parchment'],
   ['contrast', 'High contrast'],
 ] as const;
 

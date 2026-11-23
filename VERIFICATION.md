@@ -1,14 +1,33 @@
 # Verification
 
+## 4.1.3 release preparation — 23 November 2026
+
+- Production build and TypeScript checks passed. Complete suite: 567 tests passed,
+  none failed or skipped, including the real Windows helper acknowledgement,
+  parent-exit, extraction/rollback, native IPC and real Electron-ASAR boundaries.
+- Desert parchment adds a light cream/copper palette with green status accents.
+  A disposable browser verified selection, rendering and persistence after reload.
+  Checked body, muted, accent, selected-status, warning and error text contrast
+  ratios range from 4.87:1 to 13.48:1. Existing theme choices remain available.
+- The theme and application-version change preserve the calculation fingerprint
+  from the local 4.1.2 baseline. Character storage/schema and saved character data
+  are unchanged. The user will perform the actual 4.1.2 → 4.1.3 restart/update test.
+- Final package/publication and manual local-baseline installation evidence are
+  recorded after those actions; this preparation does not establish live acceptance.
+
 ## Local 4.1.2 updater test baseline — 23 November 2026
 
 The user requested a manual local upgrade with the corrected updater, followed by
 a newer published build with an extra theme for their own update test. Version
 4.1.2 is the local baseline; 4.1.3 is the intended GitHub target. The 27 focused
-checks below cover the corrected helper. Packaging and installation are recorded
-after verification; no live update result is inferred from preparation.
+checks below cover the corrected helper. Its assembled package passed clean-root,
+native/browser parity, metadata, licences and 1,285 corresponding source checks
+at `9cbdd2b2b664dd6a2fec7dd84ec4a7d1c85f28ec`. All 1,817 files and ZIP CRC passed;
+the local baseline ZIP SHA-256 is
+`41db892f1470ede7dcfac3c749707455b413737eb450029afe3d2ca95ef1d858`.
+Installation is recorded after replacement; no live update result is inferred.
 
-## Unreleased restart/update handoff fix — 23 November 2026
+## Restart/update investigation before release — 23 November 2026
 
 - Local read-only diagnostics found a staged verified 4.1.1 ZIP and install job,
   no helper result/health record, and a still-running Desktop 4.1.0 process.

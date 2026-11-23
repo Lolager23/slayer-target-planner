@@ -3,7 +3,8 @@
 Start with the [project README](../README.md), [domain vocabulary](../CONTEXT.md)
 and [current verification record](../VERIFICATION.md).
 
-Unreleased: [restart/update process handoff](features/updater-restart-handoff.md).
+The 4.1.3 update fixes [restart/update process handoff](features/updater-restart-handoff.md)
+and adds the Desert parchment theme.
 
 The 4.1.1 bugfix adds [imported-account defaults, progressive DPS and hunt selection](features/import-progressive-planning.md).
 

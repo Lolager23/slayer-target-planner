@@ -10,10 +10,12 @@
 
 :root[data-theme="daylight"]{color-scheme:light;--bg:#edf2f8;--panel:#ffffff;--line:#bcc9d8;--text:#192a40;--muted:#4c6078;--gold:#66420d;--green:#195c49;--red:#a32939;--header:#ffffff;--sidebar:#e5edf5;--button:#d8e5f3;--button-hover:#c5d8ed;--control-border:#8194ab;--input-bg:#f8faff;--label:#324b68;--selected:#cedff0;--hero:#e0edf7;--table-header:#e8eff7;--notice-bg:#fff4d9;--notice-border:#a17a32;--notice-text:#634509;--error-bg:#fff0f1;--error-border:#c77c88}
 
+:root[data-theme="desert"]{color-scheme:light;--bg:#eee4d0;--panel:#fff7e6;--line:#c4ad87;--text:#30291e;--muted:#6a5840;--gold:#82501b;--green:#25634f;--red:#aa3538;--header:#fbefd5;--sidebar:#e8d9ba;--button:#e5cda3;--button-hover:#d9ba83;--control-border:#8c7049;--input-bg:#fffaf0;--label:#53432d;--selected:#ead4ab;--hero:#f0dfba;--table-header:#f1e4c9;--notice-bg:#fff0c4;--notice-border:#a37c30;--notice-text:#65450e;--error-bg:#ffe4df;--error-border:#b25b4e}
+
 :root[data-theme="contrast"]{color-scheme:dark;--bg:#000000;--panel:#080808;--line:#a3a3a3;--text:#ffffff;--muted:#e1e1e1;--gold:#ffec66;--green:#83ffcd;--red:#ffadad;--header:#000000;--sidebar:#000000;--button:#1c1c1c;--button-hover:#373737;--control-border:#bfbfbf;--input-bg:#000000;--label:#ffffff;--selected:#292929;--hero:#141414;--table-header:#202020;--notice-bg:#241f00;--notice-border:#ffec66;--notice-text:#fff2a1;--error-bg:#2c0000;--error-border:#ffadad}
 
 .header-tools{display:flex;align-items:center;gap:24px;min-width:0}.theme-picker{min-width:158px;color:var(--muted);font-size:14px}.theme-picker select{min-height:38px;padding-top:6px;padding-bottom:6px;font-size:14px}
-:root[data-theme="daylight"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%2366420d' stroke-width='2'%3E%3Cpath d='m4 6 5 5 5-5'/%3E%3C/svg%3E")}
+:root[data-theme="daylight"] select,:root[data-theme="desert"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%2366420d' stroke-width='2'%3E%3Cpath d='m4 6 5 5 5-5'/%3E%3C/svg%3E")}
 dialog{color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px;max-width:min(560px,90vw)}dialog::backdrop{background:#0008}
 @media(max-width:700px){.header-tools{gap:0}.header-tools .topmeta{display:none}.theme-picker{min-width:135px}.theme-picker select{max-width:150px}}
 
