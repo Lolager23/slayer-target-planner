@@ -9,7 +9,7 @@ Version 4.1.3 contains the [restart/update handoff correction on Windows](docs/f
 Version 4.1.1 adds conservative imported-account defaults, background
 DPS during setup, provisional hunt tables and a clickable current-hunt creature
 selector. [Behaviour and focused verification](docs/features/import-progressive-planning.md).
-The user's Desktop copy is being updated to 4.1.2 for their own 4.1.2 → 4.1.3 update test.
+The user's Desktop copy is 4.1.2 for their own 4.1.2 → 4.1.3 update test. Open that copy and use Settings → Check for updates → Restart and update; Desert parchment becomes available after the update.
 
 Version 4.1.0 reviews all 375 canonical guide locations, adds revisioned entrance
 and transport notes, corrects Stalker Den, Tonali Cavern and Shaman Caves, and

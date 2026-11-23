@@ -1,6 +1,6 @@
 # Verification
 
-## 4.1.3 release preparation — 23 November 2026
+## 4.1.3 release — 23 November 2026
 
 - Production build and TypeScript checks passed. Complete suite: 567 tests passed,
   none failed or skipped, including the real Windows helper acknowledgement,
@@ -12,8 +12,16 @@
 - The theme and application-version change preserve the calculation fingerprint
   from the local 4.1.2 baseline. Character storage/schema and saved character data
   are unchanged. The user will perform the actual 4.1.2 → 4.1.3 restart/update test.
-- Final package/publication and manual local-baseline installation evidence are
-  recorded after those actions; this preparation does not establish live acceptance.
+
+Publication passed: [GitHub v4.1.3](https://github.com/Lolager23/slayer-target-planner/releases/tag/v4.1.3)
+targets `4b7cce4440ef030a05a101abbd7e88072f5c818f`. The 174.5 MiB Windows ZIP
+passed CRC and all 1,817 application file hashes. Native/browser parity, clean
+root, licences, metadata and all 1,285 corresponding source files passed.
+Local and uploaded ZIP SHA-256 match:
+`c81003ffb365f579f2fd0fcb0e45818496a5107f649236b80365275ab34df414`.
+The live latest stable feed selects 4.1.3 and that digest for a 4.1.2 caller through
+the application's update-feed parser. No private Site deployment was performed.
+The actual native restart/update test remains for the user.
 
 ## Local 4.1.2 updater test baseline — 23 November 2026
 
@@ -25,7 +33,17 @@ native/browser parity, metadata, licences and 1,285 corresponding source checks
 at `9cbdd2b2b664dd6a2fec7dd84ec4a7d1c85f28ec`. All 1,817 files and ZIP CRC passed;
 the local baseline ZIP SHA-256 is
 `41db892f1470ede7dcfac3c749707455b413737eb450029afe3d2ca95ef1d858`.
-Installation is recorded after replacement; no live update result is inferred.
+The old running 4.1.0 app was closed normally. The verified 4.1.2 baseline was
+moved to `Desktop/Slayer Target Planner 4.1.2 - Windows`, with its one ZIP and
+checksum under `share/`. All 1,817 installed file hashes, fixed helper presence,
+EXE product version and sharing digest passed. Desert parchment is intentionally
+absent from this baseline, providing a visible change after updating to 4.1.3.
+Character storage was neither copied nor replaced. The superseded 4.1.0 app
+distribution was recycled after verification; one Slayer app folder remains on
+the Desktop. Computer Use was stopped with Escape during the attempt to launch
+the new baseline, and no further app input was issued. Read-only process checks
+confirmed that the new copy remains closed for the user to open. No successful
+live 4.1.2 → 4.1.3 update is claimed.
 
 ## Restart/update investigation before release — 23 November 2026
 
