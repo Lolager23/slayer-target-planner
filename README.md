@@ -4,6 +4,8 @@ An offline-capable creature hunt planner for the private website, local browser 
 
 ## Start
 
+Unreleased source correction: [restart/update handoff on Windows](docs/features/updater-restart-handoff.md).
+
 Version 4.1.1 adds conservative imported-account defaults, background
 DPS during setup, provisional hunt tables and a clickable current-hunt creature
 selector. [Behaviour and focused verification](docs/features/import-progressive-planning.md).

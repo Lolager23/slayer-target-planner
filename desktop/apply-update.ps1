@@ -39,6 +39,13 @@ try{
  if(-not(Test-Path -LiteralPath (Join-Path $install 'Slayer Target Planner.exe') -PathType Leaf) -or -not(Test-Path -LiteralPath (Join-Path $install 'resources\app.asar') -PathType Leaf)){throw 'The original portable installation is missing.'}
  $archivePath=Join-Path $jobRoot 'package.zip';AssertNoLinks $archivePath
  if((Get-Item -LiteralPath $archivePath).Length -ne $config.size -or (FileHash $archivePath) -ne $config.sha256){throw 'The staged ZIP failed SHA-256 or size verification.'}
+ # Confirm that the bundled helper actually executed before the app closes.
+ # Write atomically so the launcher cannot read a partially written acknowledgement.
+ $ready=Join-Path $jobRoot 'helper-ready.json';$readyTemporary=$ready+'.tmp'
+ AssertNoLinks $ready;AssertNoLinks $readyTemporary
+ if((Test-Path -LiteralPath $ready) -or (Test-Path -LiteralPath $readyTemporary)){throw 'Updater startup acknowledgement already exists.'}
+ @{schema=1;id=$config.id;version=$config.version;parentPid=$config.parentPid;pid=$PID} | ConvertTo-Json | Set-Content -LiteralPath $readyTemporary -Encoding UTF8
+ [IO.File]::Move($readyTemporary,$ready)
  $parent=[IO.Path]::GetDirectoryName($install)
  $stage=NormalPath (Join-Path $parent ('.stp-update-'+$config.id));$backup=NormalPath (Join-Path $parent ('.stp-previous-'+$config.id));$failedCopy=NormalPath (Join-Path $parent ('.stp-failed-'+$config.id))
  foreach($target in @($stage,$backup,$failedCopy)){if([IO.Path]::GetDirectoryName($target) -ne $parent -or $target -eq $install -or (Test-Path -LiteralPath $target)){throw 'Update staging/backup path is not empty.'};AssertNoLinks $target}

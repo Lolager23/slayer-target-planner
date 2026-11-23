@@ -26,13 +26,38 @@ function installLocation(executable,userData){
  return root;
 }
 async function atomicJson(file,value){const temporary=file+'.'+randomUUID()+'.tmp';await fsp.writeFile(temporary,JSON.stringify(value),{flag:'wx'});await fsp.rename(temporary,file);}
-function launchHelper(configuration){
+async function launchHelper(configuration){
  const powershell=path.join(process.env.SystemRoot||'C:\\Windows','System32','WindowsPowerShell','v1.0','powershell.exe');
+ const directory=path.dirname(configuration),config=JSON.parse(await fsp.readFile(configuration,'utf8'));
+ for(const name of ['helper-ready.json','helper-ready.json.tmp','helper-process.json','helper-process.json.tmp','helper.ps1','result.json','healthy.json']){
+  const file=path.join(directory,name);
+  try{noLinks(file);if(!fs.lstatSync(file).isFile())throw Error('Invalid updater handoff file.');await fsp.unlink(file);}catch(error){if(error.code!=='ENOENT')throw error;}
+ }
  // Fixed bundled code; paths come from a data-only job file, never a command string.
  const script=fs.readFileSync(path.join(__dirname,'apply-update.ps1'),'utf8');
+ const helper=path.join(directory,'helper.ps1');await fsp.writeFile(helper,script,{flag:'wx'});
+ // A detached PowerShell can exit without executing; an attached one can die
+ // with its parent's console. Windows Start-Process gives the helper its own
+ // hidden lifetime. The short encoded command reads only our fixed bundled copy.
+ const command=Buffer.from('& ([scriptblock]::Create([IO.File]::ReadAllText($env:SLAYER_UPDATE_SCRIPT)))','utf16le').toString('base64');
+ const bootstrap="$ErrorActionPreference='Stop';$helper=Start-Process -FilePath (Join-Path $PSHOME 'powershell.exe') -ArgumentList @('-NoProfile','-NonInteractive','-EncodedCommand','"+command+"') -WindowStyle Hidden -PassThru;$file=Join-Path ([IO.Path]::GetDirectoryName($env:SLAYER_UPDATE_JOB)) 'helper-process.json';[IO.File]::WriteAllText(($file+'.tmp'),('{\"pid\":'+$helper.Id+'}'));[IO.File]::Move(($file+'.tmp'),$file)";
  return new Promise((resolve,reject)=>{
-  const child=spawn(powershell,['-NoProfile','-NonInteractive','-Command',script],{cwd:path.dirname(configuration),detached:true,windowsHide:true,stdio:'ignore',env:{...process.env,SLAYER_UPDATE_JOB:configuration}});
-  child.once('error',reject);child.once('spawn',()=>{child.unref();resolve();});
+  const child=spawn(powershell,['-NoProfile','-NonInteractive','-Command',bootstrap],{cwd:directory,windowsHide:true,stdio:'ignore',env:{...process.env,SLAYER_UPDATE_JOB:configuration,SLAYER_UPDATE_SCRIPT:helper}});
+  let settled=false,timer,poll;
+  const finish=error=>{if(settled)return;settled=true;clearTimeout(timer);clearInterval(poll);child.unref();error?reject(error):resolve();};
+  const inspect=async(exited=false,code)=>{
+   try{
+    let result;try{result=JSON.parse((await fsp.readFile(path.join(directory,'result.json'),'utf8')).replace(/^\uFEFF/,''));}catch(error){if(error.code!=='ENOENT')throw error;}
+    if(result?.status==='failed')throw Error(String(result.message||'The installer failed before startup.').slice(0,300));
+    const launched=JSON.parse(await fsp.readFile(path.join(directory,'helper-process.json'),'utf8'));
+    const ready=JSON.parse((await fsp.readFile(path.join(directory,'helper-ready.json'),'utf8')).replace(/^\uFEFF/,''));
+    if(!Number.isSafeInteger(launched.pid)||launched.pid<1||ready.schema!==1||ready.id!==config.id||ready.version!==config.version||ready.parentPid!==config.parentPid||ready.pid!==launched.pid)throw Error('The installer startup acknowledgement is invalid.');
+    finish();
+   }catch(error){if(error.code!=='ENOENT')finish(error);else if(exited)finish(Error('The installer exited before confirming startup (exit '+code+'). The app has not been closed.'));}
+  };
+  child.once('error',finish);child.once('exit',code=>{void inspect(code!==0,code);});
+  poll=setInterval(()=>{if(!settled)void inspect();},100);
+  timer=setTimeout(()=>{child.kill();finish(Error('The installer did not confirm startup within 30 seconds. The app has not been closed.'));},30000);
  });
 }
 class PortableUpdater{
@@ -52,7 +77,7 @@ class PortableUpdater{
     if(!JOB.test(pending.id)||!/^\d+\.\d+\.\d+$/.test(pending.release?.version)||!Number.isSafeInteger(pending.release?.size)||pending.release.size<1||pending.release.size>feed.MAX_ARCHIVE||!(/^[a-f0-9]{64}$/).test(pending.release?.sha256))throw Error('Invalid staged update record.');
     if(feed.newer(pending.release.version,this.options.version)){
      const job=path.join(this.root,pending.id);noLinks(job);const archive=path.join(job,'package.zip');
-     try{const previous=JSON.parse((await fsp.readFile(path.join(job,'result.json'),'utf8')).replace(/^\uFEFF/,''));if(previous.status==='failed'){this.retryRequired=true;this.publish({phase:'error',message:'The previous update did not complete. Your previous copy was retained. Check for updates to retry, or open GitHub releases.'});return this.snapshot();}}catch(error){if(error.code!=='ENOENT')throw error;}
+     try{const previous=JSON.parse((await fsp.readFile(path.join(job,'result.json'),'utf8')).replace(/^\uFEFF/,''));if(previous.status==='failed'){this.retryRequired=true;this.publish({phase:'error',message:'The previous update did not complete. '+String(previous.message||'The installer reported a failure.').slice(0,240)+' Your previous copy was retained. Check for updates to retry, or open GitHub releases.'});return this.snapshot();}}catch(error){if(error.code!=='ENOENT')throw error;}
      if(!fs.lstatSync(archive).isFile()||fs.lstatSync(archive).isSymbolicLink())throw Error('The staged update archive is missing.');
      this.pending=pending;this.publish({phase:'ready',latestVersion:pending.release.version,progress:100,message:this.state.enabled?'Update ready. Install when closing, or restart and update now.':'Update ready. Restart and update to install; automatic installation on close is off.'});
     }else await fsp.unlink(this.pendingFile);

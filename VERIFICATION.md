@@ -1,5 +1,24 @@
 # Verification
 
+## Unreleased restart/update handoff fix — 23 November 2026
+
+- Local read-only diagnostics found a staged verified 4.1.1 ZIP and install job,
+  no helper result/health record, and a still-running Desktop 4.1.0 process.
+- Real Windows reproduction: detached Windows PowerShell returned zero without
+  executing the command, for both piped and ignored standard streams. A direct
+  attached helper executed but failed the additional real parent-exit regression.
+- The corrected independent hidden Windows helper acknowledges its job/version
+  and process identity before the app quits. Startup failure or timeout leaves
+  explicit restart requests open and actionable. Stale handoff files are reset.
+- 27 focused updater, native IPC and real Electron-ASAR checks passed. These
+  include actual acknowledgement, validation refusal, fixture installation after
+  the real launcher parent exits, retained synthetic character data and a bounded
+  missing-acknowledgement regression. Existing extraction/rollback checks passed.
+- The full suite was not run, no new release was made, and the user's running
+  Desktop copy, staged update and live character storage were not changed.
+
+[Cause, implementation and verification limits](docs/features/updater-restart-handoff.md).
+
 ## 4.1.1 release — 23 November 2026
 
 - Production build and TypeScript checks: passed.

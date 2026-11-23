@@ -4,6 +4,11 @@ Version 4.0.0, prepared on 22 November 2026, is a major update from 3.0.27. It i
 
 ## Behaviour
 
+An unreleased [restart handoff correction](updater-restart-handoff.md) fixes the
+Windows PowerShell process-lifetime failure reported after 4.1.1 publication.
+Its evidence includes the real launcher-parent exit boundary; the original
+release checks below did not cover that boundary.
+
 The packaged Windows x64 app checks `https://api.github.com/repos/Lolager23/slayer-target-planner/releases/latest` at startup without delaying the window. It uses the public endpoint without a token, account name or character information. Development builds and the browser site do not run the native updater. Only a strictly newer stable three-part version is eligible; drafts, prereleases, equal versions and downgrades are ignored.
 
 Automatic updates default on. A newer verified ZIP downloads in the background with a percentage banner. Once ready, closing the app normally installs it; **Restart and update** closes, installs and reopens it. The application waits for its main process and remaining processes from that installation to exit rather than killing them. The helper runs from its job directory, so its own working directory does not lock the app folder.

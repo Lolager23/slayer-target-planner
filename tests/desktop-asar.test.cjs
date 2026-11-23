@@ -17,9 +17,13 @@ const [archive,exe,data]=process.argv.slice(2);app.setPath('userData',data);app.
 app.whenReady().then(async()=>{
  assert.equal(fs.statSync(archive).isFile(),false);assert.equal(physical.statSync(archive).isFile(),true);
  assert.ok(fs.readFileSync(archive+'/apply-update.ps1','utf8').includes('SLAYER_UPDATE_JOB'));
- const {installLocation,PortableUpdater}=require(archive+'/updates.cjs');assert.equal(installLocation(exe,data),require('node:path').dirname(exe));
+ const {installLocation,PortableUpdater,launchHelper}=require(archive+'/updates.cjs');assert.equal(installLocation(exe,data),require('node:path').dirname(exe));
  const u=new PortableUpdater({version:'4.0.1',platform:'win32',packaged:true,userData:data,executable:exe,latest:async()=>null});
  await u.initialize();assert.notEqual(u.snapshot().phase,'error',u.snapshot().message);await u.check();assert.equal(u.snapshot().phase,'up-to-date');
+ const path=require('node:path'),id='a'.repeat(32),job=path.join(data,'updates',id);fs.mkdirSync(job,{recursive:true});
+ const config=path.join(job,'job.json');fs.writeFileSync(config,JSON.stringify({schema:1,id,version:'4.1.1',parentPid:process.pid,restart:false,size:0,sha256:'0'.repeat(64)}));
+ await assert.rejects(launchHelper(config),/Invalid update job/);
+ assert.equal(JSON.parse(fs.readFileSync(path.join(job,'result.json'),'utf8').replace(/^\uFEFF/,'')).status,'failed');
  console.log('REAL_ELECTRON_ASAR_UPDATE_CHECK_PASSED');app.exit(0);
 }).catch(error=>{console.error(error.stack);app.exit(1);});
 `);

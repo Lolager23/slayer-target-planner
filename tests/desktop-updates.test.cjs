@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),fsp=require('node:fs/promises'),path=require('node:path'),crypto=require('node:crypto'),{spawnSync}=require('node:child_process');
-const feed=require('../desktop/update-feed.cjs'),{PortableUpdater,installLocation}=require('../desktop/updates.cjs');
+const feed=require('../desktop/update-feed.cjs'),{PortableUpdater,installLocation,launchHelper}=require('../desktop/updates.cjs');
 const scratch=path.resolve('.desktop-build/updater-tests');fs.mkdirSync(scratch,{recursive:true});
 function fixture(){const root=fs.mkdtempSync(path.join(scratch,'case-')),install=path.join(root,'Planner'),data=path.join(root,'character-data');fs.mkdirSync(path.join(install,'resources'),{recursive:true});fs.mkdirSync(data);fs.writeFileSync(path.join(install,'Slayer Target Planner.exe'),'old-exe');fs.writeFileSync(path.join(install,'resources','app.asar'),'old-app');fs.writeFileSync(path.join(install,'my-notes.txt'),'keep this');fs.writeFileSync(path.join(data,'character-backup.json'),'private fixture facts');return {root,install,data,executable:path.join(install,'Slayer Target Planner.exe')};}
 function release(version='4.0.1',body=Buffer.from('synthetic ZIP')){return {draft:false,prerelease:false,tag_name:'v'+version,assets:[{state:'uploaded',name:'Slayer.Target.Planner.'+version+'.-.Windows.zip',browser_download_url:'https://github.com/Lolager23/slayer-target-planner/releases/download/v'+version+'/Slayer.Target.Planner.'+version+'.-.Windows.zip',digest:'sha256:'+crypto.createHash('sha256').update(body).digest('hex'),size:body.length}]};}
@@ -51,8 +51,8 @@ test('development builds do not contact GitHub; errors leave the installed app i
  const t=updater(f,{latest:async()=>{throw Error('offline fixture');}});await t.app.initialize();await t.app.check();assert.equal(t.app.state.phase,'error');assert.equal(fs.readFileSync(f.executable,'utf8'),'old-exe');t.app.options.latest=async()=>null;await t.app.check(true);assert.equal(t.app.state.phase,'up-to-date');
 });
 test('a failed helper result pauses automatic retry and supports UTF-8 BOM output from Windows PowerShell',async()=>{
- const f=fixture(),t=updater(f);await t.app.initialize();await t.app.check();const job=path.join(f.data,'updates',t.app.pending.id);fs.writeFileSync(path.join(job,'result.json'),'\ufeff'+JSON.stringify({status:'failed'}));
- let calls=0;const next=updater(f,{latest:async()=>{calls++;return null;}});await next.app.initialize();await next.app.check();assert.equal(calls,0);assert.equal(next.app.state.phase,'error');await next.app.check(true);assert.equal(calls,1);
+ const f=fixture(),t=updater(f);await t.app.initialize();await t.app.check();const job=path.join(f.data,'updates',t.app.pending.id);fs.writeFileSync(path.join(job,'result.json'),'\ufeff'+JSON.stringify({status:'failed',message:'The staged ZIP failed SHA-256 or size verification.'}));
+ let calls=0;const next=updater(f,{latest:async()=>{calls++;return null;}});await next.app.initialize();await next.app.check();assert.equal(calls,0);assert.equal(next.app.state.phase,'error');assert.match(next.app.state.message,/staged ZIP failed SHA-256/);await next.app.check(true);assert.equal(calls,1);
 });
 test('path validation rejects shared character storage, critical roots, wrong executables and linked installs',()=>{
  const f=fixture();assert.equal(installLocation(f.executable,f.data),f.install);assert.throws(()=>installLocation(path.join(f.install,'Other.exe'),f.data));assert.throws(()=>installLocation(f.executable,f.install));
@@ -112,4 +112,39 @@ test('Windows helper accepts an acknowledged new version; process launching is a
  const f=applyFixture('good');f.config.restart=true;fs.writeFileSync(f.file,JSON.stringify(f.config));
  const out=apply(f,"function Start-Process {[IO.File]::WriteAllText((Join-Path $jobRoot 'healthy.json'),('{\"version\":\"'+$config.version+'\"}'));return [pscustomobject]@{HasExited=$false}}");
  assert.equal(out.result.status,0,JSON.stringify(out));assert.equal(out.status.status,'installed');assert.equal(fs.readFileSync(f.executable,'utf8'),'new-exe');
+});
+
+async function helperResult(f){
+ const deadline=Date.now()+15000;
+ while(Date.now()<deadline){
+  try{return JSON.parse(fs.readFileSync(path.join(f.job,'result.json'),'utf8').replace(/^\uFEFF/,''));}catch(error){if(error.code!=='ENOENT'&&!(error instanceof SyntaxError))throw error;}
+  await new Promise(resolve=>setTimeout(resolve,50));
+ }
+ throw Error('The real Windows update helper did not finish the disposable fixture.');
+}
+test('production Windows launcher receives a fresh helper acknowledgement and completes its isolated install',{skip:process.platform!=='win32'},async()=>{
+ const f=applyFixture('good');
+ fs.writeFileSync(path.join(f.job,'helper-ready.json'),JSON.stringify({schema:1,id:'stale'}));
+ fs.writeFileSync(path.join(f.job,'result.json'),JSON.stringify({status:'failed',message:'stale failure'}));
+ fs.writeFileSync(path.join(f.job,'healthy.json'),JSON.stringify({version:'stale'}));
+ await launchHelper(f.file);
+ const ready=JSON.parse(fs.readFileSync(path.join(f.job,'helper-ready.json'),'utf8').replace(/^\uFEFF/,''));
+ assert.equal(ready.id,f.config.id);assert.equal(ready.version,f.config.version);assert.equal(ready.parentPid,f.config.parentPid);assert.ok(ready.pid>0);
+ assert.equal(fs.existsSync(path.join(f.job,'healthy.json')),false);
+ assert.equal((await helperResult(f)).status,'installed');assert.equal(fs.readFileSync(f.executable,'utf8'),'new-exe');assert.equal(fs.readFileSync(path.join(f.data,'character-backup.json'),'utf8'),'private fixture facts');
+});
+test('production launcher reports pre-handoff validation failure instead of telling the app to quit',{skip:process.platform!=='win32'},async()=>{
+ const f=applyFixture('zip-corrupt');
+ await assert.rejects(launchHelper(f.file),/SHA-256 or size verification/);
+ assert.equal(fs.existsSync(path.join(f.job,'helper-ready.json')),false);assert.equal(fs.readFileSync(f.executable,'utf8'),'old-exe');
+});
+test('the acknowledged Windows helper survives its real launcher parent exiting and then installs',{skip:process.platform!=='win32'},async()=>{
+ const f=applyFixture('good'),script=String.raw`
+const fs=require('node:fs'),{launchHelper}=require(process.argv[1]),file=process.argv[2];
+const config=JSON.parse(fs.readFileSync(file,'utf8'));config.parentPid=process.pid;fs.writeFileSync(file,JSON.stringify(config));
+launchHelper(file).then(()=>{console.log('HELPER_ACKNOWLEDGED');},error=>{console.error(error);process.exitCode=1;});
+`;
+ const out=spawnSync(process.execPath,['-e',script,path.resolve('desktop/updates.cjs'),f.file],{encoding:'utf8',timeout:15000,windowsHide:true});
+ assert.equal(out.status,0,out.stderr||String(out.error));assert.match(out.stdout,/HELPER_ACKNOWLEDGED/);
+ assert.equal((await helperResult(f)).status,'installed');assert.equal(fs.readFileSync(f.executable,'utf8'),'new-exe');assert.equal(fs.readFileSync(path.join(f.data,'character-backup.json'),'utf8'),'private fixture facts');
 });
