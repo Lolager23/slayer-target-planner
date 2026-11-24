@@ -1,6 +1,23 @@
 # Verification
 
-## Unreleased visible-restart correction — 24 November 2026
+## 4.1.4 release — 24 November 2026
+
+- Production build and TypeScript checks passed. Complete suite: 570 tests passed,
+  none failed or skipped. This includes normal-mode restart/rollback arguments,
+  restore/show/focus before health, withholding health for an invisible window,
+  single-instance reveal, real Windows helper parent-exit survival and the actual
+  Electron-ASAR updater boundary.
+- The application/calculation fingerprint matches 4.1.3. Character storage,
+  calculation inputs and saved-character schema are unchanged.
+- A read-only pre-release snapshot confirms that the Desktop EXE is 4.1.3 and
+  records EXE/ASAR hashes for a final unchanged-baseline check. No live app input,
+  update check, replacement or restart is performed during this release.
+- Native foreground acceptance is reserved for the user's 4.1.3 → 4.1.4 test.
+  Packaging and publication evidence is recorded after completion below.
+
+[Behaviour and evidence limits](docs/features/updater-visible-restart.md).
+
+## Visible-restart investigation before 4.1.4 — 24 November 2026
 
 - Read-only diagnostics for the user's 4.1.2 → 4.1.3 attempt found `restart: true`,
   `installed`, a 4.1.3 health acknowledgement and the helper's still-running new

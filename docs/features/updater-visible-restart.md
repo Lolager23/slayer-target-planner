@@ -1,4 +1,4 @@
-# Visible restart after update — unreleased
+# Visible restart after update — 4.1.4
 
 The user reported that 4.1.2 installed 4.1.3 but did not reopen. The local updater
 job recorded `restart: true`, a successful install result and a 4.1.3 startup
@@ -25,9 +25,11 @@ an initially hidden window from one left behind another application.
   minimised. A ready-to-show event by itself is not success. Requesting focus does
   not claim to override every Windows foreground-activation restriction.
 
-This correction is not yet packaged or released. The live Desktop copy, updater
-job and character storage were not modified. Opening the current Desktop EXE
-again invokes its existing single-instance restore/show/focus behaviour.
+This correction is included in 4.1.4. The user requested that the live Desktop
+copy remain on 4.1.3 so they can test the restart through the updater. The release
+process does not launch that app, trigger installation or modify its updater job
+or character storage. Opening the Desktop EXE again invokes the existing
+single-instance restore/show/focus behaviour.
 
 ## Evidence and limits
 
@@ -38,4 +40,5 @@ Mocked Electron lifecycle tests verify restore/show/focus before health,
 withholding health for an invisible window and revealing the existing instance.
 Actual helper acknowledgement, parent-exit survival, extraction, checksum and
 rollback fixtures remain passing. Native foreground presentation acceptance
-was not run, and the full suite is deferred until the next requested release.
+was not run. The full release suite and artifact checks are recorded in the root
+verification record; they do not establish native foreground acceptance.

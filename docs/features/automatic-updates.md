@@ -4,7 +4,7 @@ Version 4.0.0, prepared on 22 November 2026, is a major update from 3.0.27. It i
 
 ## Behaviour
 
-An unreleased [visible-restart correction](updater-visible-restart.md) addresses
+The 4.1.4 [visible-restart correction](updater-visible-restart.md) addresses
 the subsequent report that the updated 4.1.3 process started but its window did
 not return as expected.
 

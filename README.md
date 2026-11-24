@@ -1,15 +1,16 @@
-# Slayer Target Planner 4.1.3
+# Slayer Target Planner 4.1.4
 
 An offline-capable creature hunt planner for the private website, local browser and portable Windows app.
 
 ## Start
 
-Version 4.1.3 contains the [restart/update handoff correction on Windows](docs/features/updater-restart-handoff.md) and the new **Desert parchment** theme in Settings. The local 4.1.2 build is the corrected-updater baseline for testing this release through the app.
+Version 4.1.4 adds [visible restart handling](docs/features/updater-visible-restart.md): normal planner launch, restore/show/focus on startup and health confirmation only for a visible, non-minimised window. The user's Desktop copy remains 4.1.3 for their own updater test.
+
+Version 4.1.3 contains the [restart/update handoff correction on Windows](docs/features/updater-restart-handoff.md) and the **Desert parchment** theme in Settings.
 
 Version 4.1.1 adds conservative imported-account defaults, background
 DPS during setup, provisional hunt tables and a clickable current-hunt creature
 selector. [Behaviour and focused verification](docs/features/import-progressive-planning.md).
-The user's Desktop copy is 4.1.2 for their own 4.1.2 → 4.1.3 update test. Open that copy and use Settings → Check for updates → Restart and update; Desert parchment becomes available after the update.
 
 Version 4.1.0 reviews all 375 canonical guide locations, adds revisioned entrance
 and transport notes, corrects Stalker Den, Tonali Cavern and Shaman Caves, and
@@ -24,9 +25,9 @@ Version 4.0.1 responsiveness fixes move block explanations/reviews out of the UI
 thread, bound saved-calculation lookup, display completed results before storage
 finishes, and reduce progress/redraw traffic. [Details and focused verification](docs/features/ui-responsiveness.md).
 
-[Download the Windows release](https://github.com/Lolager23/slayer-target-planner/releases/tag/v4.1.3). The portable app checks for future stable releases at startup. Copies through 4.1.1 need one manual upgrade to receive the corrected restart handoff.
+[Download the Windows release](https://github.com/Lolager23/slayer-target-planner/releases/tag/v4.1.4). The portable app checks for future stable releases at startup. Copies through 4.1.1 need one manual upgrade to receive the corrected restart handoff.
 
-Extract the complete **Slayer Target Planner 4.1.3 - Windows** archive and open `Slayer Target Planner.exe`. Keep the complete application folder together. No installation, administrator access, Node.js or site login is needed. The Windows x64 binary is unsigned.
+Extract the complete **Slayer Target Planner 4.1.4 - Windows** archive and open `Slayer Target Planner.exe`. Keep the complete application folder together. No installation, administrator access, Node.js or site login is needed. The Windows x64 binary is unsigned.
 
 For the browser copy, open `Open Planner.cmd` or `dist/index.html`. The private site is [Slayer Target Planner](https://slayer-target-planner-owen.heaaga.chatgpt.site). Web, local-file and desktop storage are independent; use character JSON export/import to transfer plans.
 
