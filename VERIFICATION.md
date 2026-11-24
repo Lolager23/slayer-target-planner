@@ -15,7 +15,19 @@
   hashes for a final unchanged-baseline comparison. No live app input, launch,
   updater action, Desktop replacement or private Site deployment is performed.
 - Pointer/foreground acceptance remains for the user's updater test. Artifact
-  verification and publication evidence are recorded after completion below.
+  verification and publication passed as recorded below.
+
+Publication passed: [GitHub v4.1.5](https://github.com/Lolager23/slayer-target-planner/releases/tag/v4.1.5)
+targets `325e6d46bdf703b37ee22a8a3086f51898e938bf`. The 174.5 MiB Windows ZIP
+passed CRC and all 1,821 application checksums. Clean-root layout, native/browser
+parity, licences, metadata, EXE product version 4.1.5 and all 1,289 corresponding
+source files passed. Local and uploaded ZIP SHA-256 match:
+`6a74d8297c5a9585d56bd6fed80a542b3e4b85fc44060bcee3dc28574205fe41`.
+The uploaded checksum-file digest also matches its local copy. The live latest
+stable feed selects 4.1.5 with that ZIP digest for the existing 4.1.3 caller through
+the application's update-feed parser. Final read-only checks confirm Desktop
+EXE product version 4.1.3 and identical before/after EXE and app.asar hashes.
+No user-side update action, app launch or Desktop replacement was performed.
 
 [Behaviour, reproduced figures and limits](docs/features/gear-comparison-persistence.md).
 
