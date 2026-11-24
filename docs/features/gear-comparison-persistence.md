@@ -1,4 +1,4 @@
-# Stable popups and equipped weapon previews — unreleased
+# Stable popups and equipped weapon previews — 4.1.5
 
 ## Popup interaction
 
@@ -68,7 +68,9 @@ Emberlight, explicit armour pins, crossbow bolts, blowpipe darts, two-handed
 weapons, required shields and stacked magic. A real worker fixture checks
 progress and creature-scoped cache publication without planner jobs.
 
-No new Wiki requests, live character changes, Desktop replacement or release
-were performed. Native/browser pointer acceptance and the full release suite
-were not run. The calculation worker changes will invalidate stale saved
-comparison results through the existing calculation-build fingerprint.
+These focused checks preceded the requested 4.1.5 release; its full suite and
+artifact/publication evidence are recorded in the root verification record.
+No new Wiki requests, live character changes or Desktop replacement were
+performed. Native/browser pointer acceptance remains for the user. The changed
+comparison worker invalidates stale saved calculations through the existing
+calculation-build fingerprint; character data and gear choices are retained.

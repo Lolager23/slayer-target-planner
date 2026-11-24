@@ -3,7 +3,7 @@
 Start with the [project README](../README.md), [domain vocabulary](../CONTEXT.md)
 and [current verification record](../VERIFICATION.md).
 
-Unreleased: [stable gear popups and equipped weapon previews](features/gear-comparison-persistence.md).
+The 4.1.5 update adds [stable gear popups and equipped weapon previews](features/gear-comparison-persistence.md), with strength and magic-damage comparison columns.
 
 The 4.1.4 bugfix adds [visible restart after updating](features/updater-visible-restart.md).
 

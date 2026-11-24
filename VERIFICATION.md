@@ -1,6 +1,25 @@
 # Verification
 
-## Unreleased gear comparison fixes — 24 November 2026
+## 4.1.5 release — 24 November 2026
+
+- Production build and TypeScript checks passed. Complete suite: 585 tests passed,
+  none failed or skipped. This includes popup pointer/focus/timer cases, preserved
+  background redraws, preview/equipped weapon equality, explicit gear pins,
+  ammunition, required protection, stacked magic and scoped worker progress.
+- Real-item rendering spot checks passed for melee and ammunition strength,
+  integer/fractional magic percentages, zero-column hiding and matching hidden
+  item columns. The UI-only columns preserve the comparison fingerprint; the
+  comparison algorithm change since 4.1.4 invalidates stale saved calculations.
+- Character storage/schema, bank data and saved gear choices remain unchanged.
+  A read-only Desktop snapshot records the installed EXE version and EXE/ASAR
+  hashes for a final unchanged-baseline comparison. No live app input, launch,
+  updater action, Desktop replacement or private Site deployment is performed.
+- Pointer/foreground acceptance remains for the user's updater test. Artifact
+  verification and publication evidence are recorded after completion below.
+
+[Behaviour, reproduced figures and limits](docs/features/gear-comparison-persistence.md).
+
+## Gear comparison implementation before 4.1.5 — 24 November 2026
 
 - Follow-up display addition: Melee STR, Ranged STR and Magic damage columns
   appear when non-zero bonuses exist, including hidden alternatives. Weapon
