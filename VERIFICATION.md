@@ -13,7 +13,19 @@
   records EXE/ASAR hashes for a final unchanged-baseline check. No live app input,
   update check, replacement or restart is performed during this release.
 - Native foreground acceptance is reserved for the user's 4.1.3 → 4.1.4 test.
-  Packaging and publication evidence is recorded after completion below.
+
+Publication passed: [GitHub v4.1.4](https://github.com/Lolager23/slayer-target-planner/releases/tag/v4.1.4)
+targets `545c99627111dc18efad8ac45927637314dd9820`. The 174.5 MiB Windows ZIP
+passed CRC and all 1,818 application checksums. Clean-root layout, native/browser
+parity, metadata, licences and all 1,286 corresponding source files passed.
+Local and uploaded ZIP SHA-256 match:
+`5f4196c6c257f61855b0b4aaab3ec4c6f716d58a4c62786e5261ebab16f9bc72`.
+The latest stable feed selects 4.1.4 and that digest for a 4.1.3 caller through
+the application's update-feed parser. Final read-only checks confirm Desktop
+EXE product version 4.1.3 and identical before/after EXE and app.asar hashes.
+No live updater action, app launch/restart, Desktop file change, character-storage
+replacement or private Site deployment was performed. The user's native restart
+test remains outstanding.
 
 [Behaviour and evidence limits](docs/features/updater-visible-restart.md).
 
