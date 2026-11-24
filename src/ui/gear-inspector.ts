@@ -12,7 +12,7 @@ import {escapeHtml as esc} from './html';
 
 const signed=(n:number,digits=0)=>(n>0?'+':'')+n.toFixed(digits);
 function gearTable(comparison:GearComparison,rows:GearComparisonRow[],selectable:boolean,multi:boolean):string{
- return `<table><thead><tr><th>${comparison.assumed?'Available':'Owned'} ${slotNames[comparison.slot].toLowerCase()}</th>${selectable?'<th>Selection</th>':''}<th>Setup DPS</th><th>Δ DPS</th>${multi?'<th>Stack DPS</th>':''}<th>Prayer</th><th>Stab</th><th>Slash</th><th>Crush</th><th>Magic</th><th>Ranged</th><th>Relevant defence</th></tr></thead><tbody>${rows.map(row=>{
+ return `<table><thead><tr><th>${comparison.assumed?'Available':'Owned'} ${slotNames[comparison.slot].toLowerCase()}</th>${selectable?'<th>Selection</th>':''}<th>${comparison.rebuildsWeapons?'Equipped DPS':'Setup DPS'}</th><th>Δ DPS</th>${multi?'<th>Stack DPS</th>':''}<th>Prayer</th><th>Stab</th><th>Slash</th><th>Crush</th><th>Magic</th><th>Ranged</th><th>Relevant defence</th></tr></thead><tbody>${rows.map(row=>{
   const item=equipmentItem(row.id),ammo=row.ammoId?equipmentItem(row.ammoId):undefined;
   return `<tr class="${row.selected?'equipped-comparison':''}"><td>${item?ownedItemLink(item):esc(row.name)}${ammo?'<small>with '+ownedItemLink(ammo)+'</small>':''}${row.upgrade?'<small>Strict upgrade: '+esc(row.upgrade)+'</small>':''}${row.selected?'<span class="badge">Shown setup</span>':''}${!row.owned?`<span class="badge">${comparison.assumed?'Assumed available':'Example · not owned'}</span>`:''}${row.dps===null||comparison.slot==='weapon'?`<small>${esc(row.reason)}</small>`:''}</td>${selectable?`<td><button data-gear-pick="${row.id}" ${row.ammoId?`data-gear-ammo="${row.ammoId}"`:''} ${row.dps===null||!row.owned&&!comparison.assumed?'disabled':''} aria-pressed="${row.selected}" aria-label="Use ${esc(row.name)}${ammo?' with '+esc(ammo.name):''}">${row.selected?'Keep selected':'Use item'}</button></td>`:''}<td>${row.dps===null?'Unavailable':row.dps.toFixed(3)}</td><td>${row.delta===null?'—':signed(row.delta,3)}</td>${multi?`<td>${row.aggregateDps?.toFixed(3)??'—'}</td>`:''}<td>${signed(row.prayer)}</td>${['stab','slash','crush','magic','ranged'].map(key=>`<td>${signed(row.defensive[key]||0)}</td>`).join('')}<td>${signed(row.defence,1)}</td></tr>`;
  }).join('')}</tbody></table>`;
@@ -35,10 +35,11 @@ export class GearInspector {
   document.body.append(this.panel);
   document.addEventListener('pointerover',event=>{const anchor=(event.target as HTMLElement).closest<HTMLElement>('[data-gear-slot]');if(anchor&&!this.pinned)this.open(anchor);});
   document.addEventListener('focusin',event=>{const anchor=(event.target as HTMLElement).closest<HTMLElement>('[data-gear-slot]');if(anchor&&!this.restoringFocus)this.open(anchor);});
-  document.addEventListener('pointerout',event=>{if((event.target as HTMLElement).closest('[data-gear-slot]')||this.panel.contains(event.target as Node))this.scheduleClose();});
-  this.panel.addEventListener('pointerenter',()=>clearTimeout(this.closeTimer));
-  this.panel.addEventListener('focusin',()=>clearTimeout(this.closeTimer));
-  document.addEventListener('focusout',()=>this.scheduleClose());
+  document.addEventListener('pointerout',event=>{if(this.contains(event.target)&&!this.contains(event.relatedTarget))this.scheduleClose();});
+  // Once entered, this is an interactive comparison, not a transient tooltip.
+  this.panel.addEventListener('pointerenter',()=>this.engage());
+  this.panel.addEventListener('focusin',()=>this.engage());
+  document.addEventListener('focusout',event=>{if(this.contains(event.target)&&!this.contains(event.relatedTarget))this.scheduleClose();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'){this.close();}});
   document.addEventListener('click',event=>{
    const target=event.target as HTMLElement,info=target.closest('[data-gear-info]');
@@ -54,7 +55,18 @@ export class GearInspector {
   window.addEventListener('scroll',()=>this.position(),{passive:true});
  }
  invalidate():void{this.close();this.cache.clear();this.contextKey='';}
- refresh():void{if(this.anchor&&!this.anchor.isConnected)this.close();}
+ refresh(retainAnchor=false):void{
+  if(!this.anchor)return;
+  if(this.contextKey!==this.context().key){this.close();return;}
+  if(this.anchor.isConnected)return;
+  if(!retainAnchor){this.close();return;}
+  const previous=this.anchor,replacement=[...document.querySelectorAll<HTMLElement>('[data-gear-slot]')].find(anchor=>['gearSlot','gearFamily','gearTier'].every(key=>anchor.dataset[key]===previous.dataset[key]));
+  if(!replacement){this.close();return;}
+  previous.querySelector('[data-gear-info]')?.setAttribute('aria-expanded','false');
+  this.anchor=replacement;replacement.querySelector('[data-gear-info]')?.setAttribute('aria-expanded','true');this.position();
+ }
+ private contains(target:EventTarget|null):boolean{return target instanceof Node&&(this.panel.contains(target)||!!this.anchor?.contains(target));}
+ private engage():void{if(this.anchor){this.pinned=true;clearTimeout(this.closeTimer);}}
  private scheduleClose():void{
   clearTimeout(this.closeTimer);this.closeTimer=setTimeout(()=>{
    const focus=document.activeElement;
@@ -79,6 +91,7 @@ export class GearInspector {
   const id=++this.sequence;
   worker.onmessage=event=>{
    if(this.worker!==worker||event.data.id!==id)return;
+   if(event.data.kind==='progress'){this.panel.querySelector('.gear-comparison-body')!.innerHTML='<p>Comparing gear: '+Math.min(100,Math.floor(event.data.done/Math.max(1,event.data.total)*100))+'% · '+esc(event.data.current||'Calculating')+'</p>';return;}
    if(event.data.kind==='error'){this.showError(event.data.message);return;}
    if(event.data.kind!=='gear-detail')return;
    this.cache.set(key,event.data.result);this.show(event.data.result);worker.terminate();this.worker=undefined;

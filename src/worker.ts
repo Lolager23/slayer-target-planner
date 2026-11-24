@@ -37,7 +37,7 @@ self.onmessage=(event:MessageEvent)=>{
       publish({id,kind:'progress',done:1,total:1,current:name+' / method ready'});
       publish({id,kind,result});
     }else if(kind==='gear-detail'){
-      publish({id,kind,result:compareOwnedSlot(profile,guide!,combat!,slot!)});
+      publish({id,kind,result:compareOwnedSlot(profile,guide!,combat!,slot!,{rebuildWeapons:true,progress:(done,total,current)=>publish({id,kind:'progress',done,total,current:'Comparing gear / '+current})})});
     }else if(kind==='gear'){
       const result=calculateGuideCombat(profile,guide!, (done,current)=>publish({id,kind:'progress',done,total:5,current}));
       publish({id,kind:'gear',result});

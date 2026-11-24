@@ -1,5 +1,23 @@
 # Verification
 
+## Unreleased gear comparison fixes — 24 November 2026
+
+- Build and TypeScript checks passed. All 59 focused popup, comparison, gear
+  selection, whole-box and ammunition tests passed; the full suite was not run.
+- Popups remain interactive below the table and across same-setup background
+  redraws, while navigation, changed inputs and explicit dismissal still close.
+- The exact Maxed Cerberus case reproduced Emberlight's fixed-loadout 7.363 DPS
+  versus its equipped 8.427 DPS. Owned/assumed weapon rows now preview the same
+  rebuild as selection, including off-hands and unpinned armour. Demonbane was
+  already included. Previewing does not change the character or start master jobs.
+- A cold 460-candidate Maxed melee comparison took approximately 20 seconds in
+  its worker and reports percentage/current item; completed comparisons are cached.
+- The focused tests include actual comparison-worker messages and deterministic
+  popup/focus/timer simulations. Native pointer acceptance was not run. No release,
+  Desktop replacement, live character change or Wiki request was performed.
+
+[Behaviour, reproduced figures and limits](docs/features/gear-comparison-persistence.md).
+
 ## 4.1.4 release — 24 November 2026
 
 - Production build and TypeScript checks passed. Complete suite: 570 tests passed,
