@@ -106,11 +106,13 @@ test('Windows helper restores the original folder after an injected interruption
 });
 test('Windows helper rolls back a failed relaunch; process launching is a mocked boundary',{skip:process.platform!=='win32'},()=>{
  const f=applyFixture('good');f.config.restart=true;fs.writeFileSync(f.file,JSON.stringify(f.config));
- const out=apply(f,"function Start-Process {throw 'Synthetic relaunch failure.'}");assert.equal(out.result.status,1);assert.match(out.status.message,/Synthetic relaunch/);assert.equal(fs.readFileSync(f.executable,'utf8'),'old-exe');
+ const prefix=String.raw`$script:launches=@();function Start-Process {param($FilePath,$ArgumentList,$WorkingDirectory,$WindowStyle,[switch]$PassThru);$script:launches+=@{style=$WindowStyle;directory=$WorkingDirectory};[IO.File]::WriteAllText((Join-Path $jobRoot 'launches.json'),(ConvertTo-Json $script:launches));if($script:launches.Count -eq 1){throw 'Synthetic relaunch failure.'}}`;
+ const out=apply(f,prefix);assert.equal(out.result.status,1);assert.match(out.status.message,/Synthetic relaunch/);assert.equal(fs.readFileSync(f.executable,'utf8'),'old-exe');
+ const launches=JSON.parse(fs.readFileSync(path.join(f.job,'launches.json'),'utf8'));assert.equal(launches.length,2);assert.deepEqual(launches.map(l=>l.style),['Normal','Normal']);assert.ok(launches.every(l=>l.directory===f.install));
 });
 test('Windows helper accepts an acknowledged new version; process launching is a mocked boundary',{skip:process.platform!=='win32'},()=>{
  const f=applyFixture('good');f.config.restart=true;fs.writeFileSync(f.file,JSON.stringify(f.config));
- const out=apply(f,"function Start-Process {[IO.File]::WriteAllText((Join-Path $jobRoot 'healthy.json'),('{\"version\":\"'+$config.version+'\"}'));return [pscustomobject]@{HasExited=$false}}");
+ const out=apply(f,"function Start-Process {param($FilePath,$ArgumentList,$WorkingDirectory,$WindowStyle,[switch]$PassThru);if($WindowStyle -ne 'Normal'){throw 'The interactive planner must launch normally.'};[IO.File]::WriteAllText((Join-Path $jobRoot 'healthy.json'),('{\"version\":\"'+$config.version+'\"}'));return [pscustomobject]@{HasExited=$false}}");
  assert.equal(out.result.status,0,JSON.stringify(out));assert.equal(out.status.status,'installed');assert.equal(fs.readFileSync(f.executable,'utf8'),'new-exe');
 });
 

@@ -15,13 +15,26 @@ test('an initial state response cannot overwrite a newer event and update choice
  const controller=new DesktopUpdates(bridge,()=>changes++);callback({...state,phase:'downloading',progress:42});resolveInitial({...state,phase:'idle'});await Promise.resolve();assert.equal(controller.state.phase,'downloading');assert.equal(controller.state.progress,42);
  await controller.action('enabled',false);assert.equal(controller.state.enabled,false);await controller.action('check');await controller.action('restart');assert.deepEqual(calls.map(c=>c[0]),['state','enabled','check','restart']);assert.ok(changes>=4);
 });
-function mainHarness(){
- const handlers={},events={},calls=[],window={webContents:{}},updater={snapshot:()=>state,check:async manual=>{calls.push(['check',manual]);return state;},setEnabled:async value=>{calls.push(['enabled',value]);return state;},install:async restart=>{calls.push(['install',restart]);updater.shouldInstallOnQuit=()=>false;},shouldInstallOnQuit:()=>true};
- const electron={app:{setName(){},setAppUserModelId(){},requestSingleInstanceLock:()=>true,on:(key,value)=>events[key]=value,whenReady:()=>({then(){}}),quit:()=>calls.push(['quit'])},BrowserWindow:function(){},dialog:{},shell:{},session:{},ipcMain:{handle:(name,fn)=>handlers[name]=fn}};
- const source=fs.readFileSync('desktop/main.cjs','utf8')+'\nmainWindow=globalThis.testWindow;updater=globalThis.testUpdater;';
- vm.runInNewContext(source,{testWindow:window,testUpdater:updater,__dirname:'/app',require:name=>name==='electron'?electron:name==='./navigation.cjs'?require('../desktop/navigation.cjs'):name.startsWith('./')?{}:require(name)});
- const event={sender:window.webContents,senderFrame:{url:require('node:url').pathToFileURL('/app/web/index.html').href}};return {handlers,events,calls,event,updater};
+function mainHarness(options={}){
+ const handlers={},events={},windowEvents={},calls=[];let visible=false,minimized=options.minimized===true;
+ const window={webContents:{setWindowOpenHandler(){},on(){}},setMenu(){},once:(key,fn)=>windowEvents[key]=fn,on(){},loadFile(){},isDestroyed:()=>false,isMinimized:()=>minimized,isVisible:()=>visible,restore(){calls.push(['restore']);minimized=false;},show(){calls.push(['show']);visible=!options.blockVisibility;},focus(){calls.push(['focus']);}};
+ const updater={snapshot:()=>state,check:async manual=>{calls.push(['check',manual]);return state;},setEnabled:async value=>{calls.push(['enabled',value]);return state;},install:async restart=>{calls.push(['install',restart]);updater.shouldInstallOnQuit=()=>false;},shouldInstallOnQuit:()=>true,healthy:async args=>calls.push(['healthy',args])};
+ const electron={app:{setName(){},setAppUserModelId(){},requestSingleInstanceLock:()=>true,on:(key,value)=>events[key]=value,whenReady:()=>({then(){}}),quit:()=>calls.push(['quit'])},BrowserWindow:function(){return window;},dialog:{},shell:{},session:{},ipcMain:{handle:(name,fn)=>handlers[name]=fn}};
+ const source=fs.readFileSync('desktop/main.cjs','utf8')+'\nmainWindow=globalThis.testWindow;updater=globalThis.testUpdater;globalThis.testCreateWindow=createWindow;';
+ const args=['planner.exe','--slayer-updated='+'a'.repeat(32)],context={testWindow:window,testUpdater:updater,process:{argv:args},__dirname:'/app',require:name=>name==='electron'?electron:name==='./navigation.cjs'?require('../desktop/navigation.cjs'):name.startsWith('./')?{}:require(name)};
+ vm.runInNewContext(source,context);
+ const event={sender:window.webContents,senderFrame:{url:require('node:url').pathToFileURL('/app/web/index.html').href}};return {handlers,events,calls,event,updater,create:context.testCreateWindow,windowEvents,args};
 }
+
+test('updated startup shows, restores and focuses its window before acknowledging health',()=>{
+ for(const minimized of [false,true]){const h=mainHarness({minimized});h.create();h.windowEvents['ready-to-show']();assert.deepEqual(h.calls,[...(minimized?[['restore']]:[]),['show'],['focus'],['healthy',h.args]]);}
+});
+test('a ready-to-show event without a visible window cannot acknowledge a successful restart',()=>{
+ const h=mainHarness({blockVisibility:true});h.create();h.windowEvents['ready-to-show']();assert.deepEqual(h.calls,[['show'],['focus']]);
+});
+test('opening the EXE again restores and focuses the existing planner window',()=>{
+ const h=mainHarness({minimized:true});h.events['second-instance']();assert.deepEqual(h.calls,[['restore'],['show'],['focus']]);
+});
 test('native IPC accepts only the packaged main frame and a fixed set of update actions',async()=>{
  const h=mainHarness(),invoke=h.handlers['app-update'];
  for(const event of [{sender:{},senderFrame:h.event.senderFrame},{sender:h.event.sender,senderFrame:{url:'https://evil.invalid'}},{sender:h.event.sender,senderFrame:{url:'file:///app/web/index.html?override=1'}}])await assert.rejects(invoke(event,'restart'),/Unknown request/);

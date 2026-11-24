@@ -3,6 +3,8 @@
 Start with the [project README](../README.md), [domain vocabulary](../CONTEXT.md)
 and [current verification record](../VERIFICATION.md).
 
+Unreleased: [visible restart after updating](features/updater-visible-restart.md).
+
 The 4.1.3 update fixes [restart/update process handoff](features/updater-restart-handoff.md)
 and adds the Desert parchment theme.
 

@@ -102,7 +102,8 @@ try{
  [IO.File]::Copy($archivePath,$shareZip,$false)
  [IO.File]::WriteAllText(($shareZip+'.sha256.txt'),($config.sha256+'  '+$shareName+[Environment]::NewLine))
  if($config.restart){
-  $launched=Start-Process -FilePath (Join-Path $install 'Slayer Target Planner.exe') -ArgumentList ('--slayer-updated='+$config.id) -WorkingDirectory $install -WindowStyle Hidden -PassThru
+  # The installer is hidden; the interactive planner must reopen normally.
+  $launched=Start-Process -FilePath (Join-Path $install 'Slayer Target Planner.exe') -ArgumentList ('--slayer-updated='+$config.id) -WorkingDirectory $install -WindowStyle Normal -PassThru
   $health=Join-Path $jobRoot 'healthy.json';$deadline=[DateTime]::UtcNow.AddSeconds(45)
   while(-not(Test-Path -LiteralPath $health)){
    if($launched.HasExited){throw 'The updated application exited before startup completed.'}
@@ -131,6 +132,6 @@ try{
  if($stageCreated -and -not $newMoved -and (Test-Path -LiteralPath $stage)){
   try{if([IO.Path]::GetDirectoryName($stage) -ne [IO.Path]::GetDirectoryName($install) -or [IO.Path]::GetFileName($stage) -cne ('.stp-update-'+$config.id)){throw 'Unsafe staging cleanup.'};AssertNoLinks $stage;if(Get-ChildItem -LiteralPath $stage -Recurse -Force | Where-Object {$_.Attributes -band [IO.FileAttributes]::ReparsePoint}){throw 'Linked staging contents.'};Remove-Item -LiteralPath $stage -Recurse -Force}catch{}
  }
- if($config.restart -and -not(RunningInstall) -and ($rolledBack -or -not $oldMoved -and (Test-Path -LiteralPath (Join-Path $install 'Slayer Target Planner.exe')))){try{Start-Process -FilePath (Join-Path $install 'Slayer Target Planner.exe') -WorkingDirectory $install -WindowStyle Hidden}catch{}}
+ if($config.restart -and -not(RunningInstall) -and ($rolledBack -or -not $oldMoved -and (Test-Path -LiteralPath (Join-Path $install 'Slayer Target Planner.exe')))){try{Start-Process -FilePath (Join-Path $install 'Slayer Target Planner.exe') -WorkingDirectory $install -WindowStyle Normal}catch{}}
  exit 1
 }

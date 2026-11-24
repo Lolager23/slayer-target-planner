@@ -4,6 +4,10 @@ Version 4.0.0, prepared on 22 November 2026, is a major update from 3.0.27. It i
 
 ## Behaviour
 
+An unreleased [visible-restart correction](updater-visible-restart.md) addresses
+the subsequent report that the updated 4.1.3 process started but its window did
+not return as expected.
+
 The 4.1.3 [restart handoff correction](updater-restart-handoff.md) fixes the
 Windows PowerShell process-lifetime failure reported after 4.1.1 publication.
 Its evidence includes the real launcher-parent exit boundary; the original

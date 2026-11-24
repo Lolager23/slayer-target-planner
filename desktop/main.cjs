@@ -47,6 +47,13 @@ function openSource(url) {
   }
 }
 
+function revealWindow() {
+  if (!mainWindow || mainWindow.isDestroyed()) return false;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show(); mainWindow.focus();
+  return mainWindow.isVisible() && !mainWindow.isMinimized();
+}
+
 function createWindow() {
   const documentPath = path.join(__dirname, 'web', 'index.html');
   const documentUrl = pathToFileURL(documentPath).href;
@@ -70,7 +77,7 @@ function createWindow() {
   mainWindow.webContents.on('did-fail-load', (_event, code) => {
     if (code !== -3) dialog.showErrorBox('Planner could not load', 'Extract the entire ZIP into a folder, then run Slayer Target Planner.exe from that folder.');
   });
-  mainWindow.once('ready-to-show', () => {mainWindow.show();void updater.healthy(process.argv);});
+  mainWindow.once('ready-to-show', () => {if (revealWindow()) void updater.healthy(process.argv);});
   mainWindow.on('closed', () => { mainWindow = null; });
   mainWindow.loadFile(documentPath);
 }
@@ -79,9 +86,7 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   app.on('second-instance', () => {
-    if (!mainWindow) return;
-    if (mainWindow.isMinimized()) mainWindow.restore();
-    mainWindow.show(); mainWindow.focus();
+    revealWindow();
   });
   app.whenReady().then(() => {
     session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));

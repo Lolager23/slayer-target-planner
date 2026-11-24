@@ -1,5 +1,25 @@
 # Verification
 
+## Unreleased visible-restart correction — 24 November 2026
+
+- Read-only diagnostics for the user's 4.1.2 → 4.1.3 attempt found `restart: true`,
+  `installed`, a 4.1.3 health acknowledgement and the helper's still-running new
+  app process. Its window handle/title and responding status were present. This
+  establishes process restart, not successful foreground presentation; the user
+  reported that the expected window did not reopen.
+- The helper requested Hidden for the interactive app, and startup did not
+  explicitly restore/focus it. The source correction uses Normal for updated and
+  rollback app launches, restores/shows/focuses the window and acknowledges health
+  only when visible and not minimised. Helper/bootstrap processes remain hidden.
+- All 30 focused updater, IPC and real Electron-ASAR tests passed. Added lifecycle
+  regressions use mocked Electron windows; real helper tests validate restart and
+  rollback window-mode arguments at a mocked Start-Process boundary. Existing
+  actual parent-exit, extraction and checksum fixtures passed.
+- No live app input, Desktop replacement, new release or full-suite run was
+  performed. Native foreground acceptance remains unverified.
+
+[Behaviour, evidence and limits](docs/features/updater-visible-restart.md).
+
 ## 4.1.3 release — 23 November 2026
 
 - Production build and TypeScript checks passed. Complete suite: 567 tests passed,
