@@ -2,6 +2,14 @@
 
 ## Unreleased gear comparison fixes — 24 November 2026
 
+- Follow-up display addition: Melee STR, Ranged STR and Magic damage columns
+  appear when non-zero bonuses exist, including hidden alternatives. Weapon
+  columns include listed ammunition. Magic damage converts engine tenths to
+  percent. Real-item rendering spot checks passed for melee strength, bolt
+  strength, +5% and +0.5% magic damage, zero-column hiding and matching expanded
+  columns. Build, TypeScript and all 8 popup checks passed again; this UI-only
+  addition preserves the comparison calculation fingerprint.
+
 - Build and TypeScript checks passed. All 59 focused popup, comparison, gear
   selection, whole-box and ammunition tests passed; the full suite was not run.
 - Popups remain interactive below the table and across same-setup background

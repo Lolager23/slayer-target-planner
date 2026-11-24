@@ -48,6 +48,14 @@ fixed-loadout semantics. Prayer/defensive columns remain item bonuses; the DPS
 and delta columns describe the complete setup. Selected rows stay first, and
 strict-upgrade hiding, family filters and ranged ammunition choices are retained.
 
+The table also shows Melee STR, Ranged STR and Magic damage when at least one
+listed or hidden item has a non-zero bonus. Both tables keep matching columns.
+Weapon rows include the listed ammunition's offensive bonuses, making bolt/dart
+differences visible. Magic damage is shown as a percentage, converting the pinned
+engine's tenths-of-percentage-point storage (for example, 50 becomes +5%). These
+are item/weapon-plus-ammo bonuses, not whole-loadout totals or conditional effects.
+This display-only addition preserves the calculation fingerprint and cached DPS.
+
 ## Focused evidence
 
 Build and TypeScript checks passed. All 59 focused tests passed across popup
